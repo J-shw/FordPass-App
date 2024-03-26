@@ -1,7 +1,9 @@
-const {app,BrowserWindow }=require('electron')
+const {app,BrowserWindow, ipcMain }=require('electron')
 const path=require('path')
 const url=require('url')
 const crypto = require('crypto');
+const connectedcar = require('connected-car');
+
 
 let mainWindow;
 
@@ -27,5 +29,15 @@ function createWindows() {
     }
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html')); 
 }
+
+ipcMain.on('read-file-lines', async (event, credentials) => {
+    const client = connectedcar.AuthClient('9fb503e0-715b-47e8-adfd-ad4b7770f73b', {region: 'GB'}); // Region argument is only required if you live outside the United States.
+    const token = await client.getAccessTokenFromCredentials({
+        username: credentials.usr,
+        password: credentials.psd,
+    });
+
+    console.log(token);
+});
 
 app.on('ready',createWindows)

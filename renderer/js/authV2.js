@@ -69,8 +69,6 @@ function auth2_step2(step1_session){
                     "signInName": username,
                     "password": password,
                 };
-                console.log(username);
-                console.log(password);
                 const urlp = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${this.country_code}/SelfAsserted?tx=${transId}&p=B2C_1A_SignInSignUp_en-AU`;
                 console.log(urlp);
                 const headers = {
