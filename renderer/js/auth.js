@@ -1,6 +1,10 @@
-
 const FORD_LOGIN_URL = "https://login.ford.com";
 const loginHeaders = {
+    "Accept": "*/*",
+    "Accept-Language": "en-us"
+};
+
+const loginHeadersV2 = {
     "Accept": "*/*",
     "Accept-Language": "en-us",
     "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1",
@@ -21,6 +25,7 @@ const country_code = locale_lookup['UK&Europe']
 const short_code = locale_short_lookup['UK&Europe']
 
 async function auth2_step1() {
+    debugger
     let username = document.getElementById('txtUsr');
     let password = document.getElementById('txtPwd');
     console.log("Running Step1 new!");
@@ -33,10 +38,22 @@ async function auth2_step1() {
 
     // Create and send get request
     step1_session.open("GET", step1_url);
-    for (const [key, value] of Object.entries(loginHeaders)) {
+    for (let [key, value] of Object.entries(loginHeaders)) {
         step1_session.setRequestHeader(key, value);
     }
     step1_session.send();
+
+    // const result = await fetch(step1_url, {
+    //         method: 'POST',
+    //         headers: {
+    //             "Accept": "*/*",
+    //             "Accept-Language": "en-us",
+    //             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1",
+    //             "Accept-Encoding": "gzip, deflate, br"
+    //         }
+    //     });
+
+    // console.log(result)
 
     step1_session.onreadystatechange = function() {
         if (step1_session.readyState === XMLHttpRequest.DONE) {
