@@ -1,0 +1,14 @@
+{
+  "name": "fordpass-app",
+  "version": "1.0.0",
+  "description": "An Electron app to control fordpass vehicles",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Josh Whitticase",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^29.1.5"
+  }
+}
