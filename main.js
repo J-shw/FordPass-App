@@ -1,4 +1,4 @@
-const {app,BrowserWindow, ipcMain }=require('electron')
+const {app,BrowserWindow,protocol, ipcMain }=require('electron')
 const path=require('path')
 const auth = require('./modules/auth');
 
