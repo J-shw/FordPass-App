@@ -1,6 +1,6 @@
 const {app,BrowserWindow,protocol, ipcMain }=require('electron')
 const path=require('path')
-const auth = require('./modules/auth');
+const auth = require('./modules/authV3');
 
 let mainWindow;
 
@@ -28,7 +28,7 @@ function createWindows() {
 }
 
 ipcMain.on('read-file-lines', async (event, credentials) => {
-    auth.authenticate(credentials.usr,credentials.psd);
+    auth.auth(credentials.usr,credentials.psd);
 });
 
 app.on('ready',createWindows)
