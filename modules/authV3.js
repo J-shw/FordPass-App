@@ -89,6 +89,7 @@ async function auth(username, password) {
         const tokens = step3post.data;
         console.log(tokens)
         if (tokens) {
+            console.error("Authentication Complete");
             // Authentication successful, proceed with further actions
             return tokens;
         } else {
