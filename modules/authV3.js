@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const axios = require('axios');
-const fs = require('fs');
+const fs = require('fs')
+
 
 const FORD_LOGIN_URL = "https://login.ford.com";
 const loginHeaders = {
@@ -42,64 +43,75 @@ function generate_hash(code) {
     return base64_url_encode(hash);
 }
 
+function createSession() {
+    return axios.create();
+}
+
 module.exports = {
     auth: auth
 };
 
 async function auth(username, password) {
-    try {
-        const code1 = Array(43).fill().map(() => Math.random().toString(36).charAt(2)).join('');
-        const codeVerifier = generate_hash(code1);
+    console.log('Start');
+    const code1 = Array(43).fill().map(() => Math.random().toString(36).charAt(2)).join('');
+    const codeVerifier = generate_hash(code1);
 
-        const step1Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/oauth2/v2.0/authorize?redirect_uri=fordapp://userauthorized&response_type=code&max_age=3600&scope=09852200-05fd-41f6-8c21-d36d3497dc64%20openid&client_id=09852200-05fd-41f6-8c21-d36d3497dc64&code_challenge=${codeVerifier}&code_challenge_method=S256&ui_locales=${country_code}&language_code=${country_code}&country_code=${short_code}&ford_application_id=5C80A6BB-CF0D-4A30-BDBF-FC804B5C1A98`;
+    const session = createSession();
 
-        const step1get = await axios.get(step1Url, { headers: loginHeaders });
+    const step1Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/oauth2/v2.0/authorize?redirect_uri=https://userauthorized&response_type=code&max_age=3600&scope=2009852200-05fd-41f6-8c21-d36d3497dc64%20openid&client_id=09852200-05fd-41f6-8c21-d36d3497dc64&code_challenge=${codeVerifier}&code_challenge_method=S256&ui_locales=${country_code}&language_code=${country_code}&country_code=${short_code}&ford_application_id=5C80A6BB-CF0D-4A30-BDBF-FC804B5C1A98`;
+    // Set redirect_url to a https protocol so unkown protocol error is stopped
+    console.log('Step 1');
+    const step1get = await session.get(step1Url, { headers: loginHeaders, maxRedirects: 0});
 
-        const transId = extractTransId(step1get.data);
-        const csrfToken = extractCsrfToken(step1get.data);
+    // output(step1get.data);
 
-        const step2Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/SelfAsserted?tx=${transId}&p=B2C_1A_SignInSignUp_${country_code}`;
-
-        const step2post = await axios.post(step2Url, {
-            request_type: "RESPONSE",
-            signInName: username,
-            password: password
-        }, {
-            headers: {
-                ...loginHeaders,
-                "Origin": "https://login.ford.com",
-                "Referer": step1Url,
-                "X-Csrf-Token": csrfToken
-            }
-        });
-
-        const locationHeader = step2post.headers.location;
-        const codeNew = locationHeader.replace("fordapp://userauthorized/?code=", "");
-
-        const step3Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/oauth2/v2.0/token`;
-
-        const step3post = await axios.post(step3Url, {
-            client_id: "09852200-05fd-41f6-8c21-d36d3497dc64",
-            grant_type: "authorization_code",
-            code_verifier: code1,
-            code: codeNew,
-            redirect_uri: "fordapp://userauthorized"
-        }, { headers: loginHeaders });
-
-        const tokens = step3post.data;
-        console.log(tokens)
-        if (tokens) {
-            console.error("Authentication Complete");
-            // Authentication successful, proceed with further actions
-            return tokens;
-        } else {
-            console.error("Authentication failed");
-            // Handle authentication failure
+    const transId = extractTransId(step1get.data);
+    const csrfToken = extractCsrfToken(step1get.data);
+    console.log(csrfToken)
+    // {FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_{self.country_code}/oauth2/v2.0/authorize?redirect_uri=fordapp://userauthorized&response_type=code&max_age=3600&scope=%2009852200-05fd-41f6-8c21-d36d3497dc64%20openid&client_id=09852200-05fd-41f6-8c21-d36d3497dc64&code_challenge={code_verifier}&code_challenge_method=S256&ui_locales={self.country_code}&language_code={self.country_code}&country_code={self.short_code}&ford_application_id=5C80A6BB-CF0D-4A30-BDBF-FC804B5C1A98
+    const step2Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/SelfAsserted?tx=${transId}&p=B2C_1A_SignInSignUp_${country_code}`;
+    console.log('Step 2');
+    const step2post = await session.post(step2Url, {
+        request_type: "RESPONSE",
+        signInName: username,
+        password: password
+    }, {
+        headers: {
+            ...loginHeaders,
+            "Origin": "https://login.ford.com",
+            "Referer": step1Url,
+            "X-Csrf-Token": csrfToken
         }
-    } catch (error) {
-        console.error('Authentication failed:', error);
-        // Handle error
+    });
+
+    console.log(csrfToken)
+    // console.log(step2post.headers)
+    //output(step2post.data);
+
+    const locationHeader = step2post.headers.location;
+    const codeNew = locationHeader.replace("fordapp://userauthorized/?code=", "");
+
+    const step3Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/oauth2/v2.0/token`;
+    console.log('Step 3');
+    const step3post = await session.post(step3Url, {
+        client_id: "30990062-9618-40e1-a27b-7c6bcb23658a",
+        grant_type: "authorization_code",
+        code_verifier: code1,
+        code: codeNew,
+        redirect_uri: "fordapp://userauthorized"
+    }, { headers: loginHeaders });
+
+    const tokens = step3post.data;
+    //console.log(tokens)
+    if (tokens) {
+        console.error("Authentication Complete");
+        // Authentication successful, proceed with further actions
+        return tokens;
+    } else {
+        console.error("Authentication failed to obtain token");
+        // Handle authentication failure
     }
+
 }
 
 function extractTransId(data) {
@@ -112,4 +124,12 @@ function extractCsrfToken(data) {
     return match ? match[1] : null;
 }
 
-// Rest of the code remains the same
+function output(data){
+    console.log('Written output.html');
+    fs.writeFile("ouput.html", data, (err) => {
+        if (err) {
+            console.error('Error writing to file:', err);
+            return;
+        }        
+    });
+}
