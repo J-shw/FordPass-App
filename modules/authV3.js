@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const axios = require('axios');
 const fs = require('fs')
 
+// This is my attemp at translating pythonAuth.py into JavaScript
+
 
 const FORD_LOGIN_URL = "https://login.ford.com";
 const loginHeaders = {
@@ -59,9 +61,14 @@ async function auth(username, password) {
     const session = createSession();
 
     const step1Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/oauth2/v2.0/authorize?redirect_uri=https://userauthorized&response_type=code&max_age=3600&scope=2009852200-05fd-41f6-8c21-d36d3497dc64%20openid&client_id=09852200-05fd-41f6-8c21-d36d3497dc64&code_challenge=${codeVerifier}&code_challenge_method=S256&ui_locales=${country_code}&language_code=${country_code}&country_code=${short_code}&ford_application_id=5C80A6BB-CF0D-4A30-BDBF-FC804B5C1A98`;
-    // Set redirect_url to a https protocol so unkown protocol error is stopped
+    // This URL 'step1Url' is the first issue 
+    // I have set the redirect to fordapp (This is the same as the python)
+    // It throws 'Unsupported protocol fordapp'
+    // So I set it to https://
+    // Then it seems the server responds with 'lincolnapp' as a redirect
+    // Because it thows 'Unsupported protocol lincolnapp'
     console.log('Step 1');
-    const step1get = await session.get(step1Url, { headers: loginHeaders, maxRedirects: 0});
+    const step1get = await session.get(step1Url, { headers: loginHeaders});
 
     // output(step1get.data);
 
