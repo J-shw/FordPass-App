@@ -49,9 +49,9 @@ function createSession() {
     return axios.create();
 }
 
-module.exports = {
-    auth: auth
-};
+// module.exports = {
+//     auth: auth
+// };
 
 async function auth(username, password) {
     console.log('Start');
@@ -60,7 +60,7 @@ async function auth(username, password) {
 
     const session = createSession();
 
-    const step1Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/oauth2/v2.0/authorize?redirect_uri=https://userauthorized&response_type=code&max_age=3600&scope=2009852200-05fd-41f6-8c21-d36d3497dc64%20openid&client_id=09852200-05fd-41f6-8c21-d36d3497dc64&code_challenge=${codeVerifier}&code_challenge_method=S256&ui_locales=${country_code}&language_code=${country_code}&country_code=${short_code}&ford_application_id=5C80A6BB-CF0D-4A30-BDBF-FC804B5C1A98`;
+    const step1Url = `${FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_${country_code}/oauth2/v2.0/authorize?redirect_uri=fordapp://userauthorized&response_type=code&max_age=3600&scope=2009852200-05fd-41f6-8c21-d36d3497dc64%20openid&client_id=09852200-05fd-41f6-8c21-d36d3497dc64&code_challenge=${codeVerifier}&code_challenge_method=S256&ui_locales=${country_code}&language_code=${country_code}&country_code=${short_code}&ford_application_id=5C80A6BB-CF0D-4A30-BDBF-FC804B5C1A98`;
     // This URL 'step1Url' is the first issue 
     // I have set the redirect to fordapp (This is the same as the python)
     // It throws 'Unsupported protocol fordapp'
@@ -68,7 +68,11 @@ async function auth(username, password) {
     // Then it seems the server responds with 'lincolnapp' as a redirect
     // Because it thows 'Unsupported protocol lincolnapp'
     console.log('Step 1');
-    const step1get = await session.get(step1Url, { headers: loginHeaders});
+    try{
+        const step1get = await session.get(step1Url, { headers: loginHeaders});
+    }catch(e){
+        console.log(e)
+    }
 
     // output(step1get.data);
 
@@ -91,7 +95,6 @@ async function auth(username, password) {
         }
     });
 
-    console.log(csrfToken)
     // console.log(step2post.headers)
     //output(step2post.data);
 
@@ -131,12 +134,4 @@ function extractCsrfToken(data) {
     return match ? match[1] : null;
 }
 
-function output(data){
-    console.log('Written output.html');
-    fs.writeFile("ouput.html", data, (err) => {
-        if (err) {
-            console.error('Error writing to file:', err);
-            return;
-        }        
-    });
-}
+auth("username", "password")
