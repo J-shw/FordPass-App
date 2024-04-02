@@ -45,7 +45,7 @@ def auth2_step1(username, password):
     code_verifier = generate_hash(code1)
     step1_session = requests.session()
     step1_url = f"{FORD_LOGIN_URL}/4566605f-43a7-400a-946e-89cc9fdb0bd7/B2C_1A_SignInSignUp_{country_code}/oauth2/v2.0/authorize?redirect_uri=fordapp://userauthorized&response_type=code&max_age=3600&scope=%2009852200-05fd-41f6-8c21-d36d3497dc64%20openid&client_id=09852200-05fd-41f6-8c21-d36d3497dc64&code_challenge={code_verifier}&code_challenge_method=S256&ui_locales={country_code}&language_code={country_code}&country_code={short_code}&ford_application_id=5C80A6BB-CF0D-4A30-BDBF-FC804B5C1A98"
-
+    print(step1_url)
     step1get = step1_session.get(
         step1_url,
         headers=headers,
@@ -139,4 +139,4 @@ def auth2_step1(username, password):
         print("DAM IT WENT WRONG")
 
 
-auth2_step1("jwhtticase07@gmail.com", "")
+auth2_step1("email", "password")
